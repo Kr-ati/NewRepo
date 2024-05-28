@@ -1,0 +1,8 @@
+{
+  "ApplicationCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\.NET_Framework-Projects\\Repos\\New_Eshop_Project\\src\\ApplicationCore",
+  "BlazorAdmin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\.NET_Framework-Projects\\Repos\\New_Eshop_Project\\src\\BlazorAdmin",
+  "BlazorShared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\.NET_Framework-Projects\\Repos\\New_Eshop_Project\\src\\BlazorShared",
+  "Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\.NET_Framework-Projects\\Repos\\New_Eshop_Project\\src\\Infrastructure",
+  "PublicApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\.NET_Framework-Projects\\Repos\\New_Eshop_Project\\src\\PublicApi",
+  "Web, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\.NET_Framework-Projects\\Repos\\New_Eshop_Project\\src\\Web"
+}

@@ -24,7 +24,6 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
-      #added build step
       
     - name: Build
       run: dotnet build --no-restore

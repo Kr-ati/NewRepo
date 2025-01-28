@@ -21,6 +21,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0
+      env:
+        DOTNET_INSTALL_DIR: D:\dotnet
+
 
     - name: Restore dependencies
       run: dotnet restore

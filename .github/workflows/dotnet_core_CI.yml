@@ -36,25 +36,25 @@ jobs:
 
     - name: Extract Code Coverage Percentage
       id: coverage
-      shell: pwsh
+      shell: cmd
       run: |
-          # Ensure the file exists
-          if (Test-Path "tests/UnitTests/coverage.opencover.xml") {
-            $coverage = (Select-Xml -Path "tests/UnitTests/coverage.opencover.xml" -XPath "//CoverageSession/Summary").Node.GetAttribute("sequenceCoverage")
-            Write-Host "Extracted Code Coverage: $coverage%"
-            echo "percentage=$coverage" >> $GITHUB_ENV
-          } else {
-            Write-Host "Coverage file not found!"
-            exit 1
-          }
+          if not exist "tests\UnitTests\coverage.opencover.xml" (
+            echo Coverage file not found!
+            exit /b 1
+          )
+          for /f "tokens=2 delims='\"'" %%A in ('findstr sequenceCoverage tests\UnitTests\coverage.opencover.xml') do set "COVERAGE=%%A"
+          echo Extracted Code Coverage: %COVERAGE%%
+          echo percentage=%COVERAGE% >> %GITHUB_ENV%
 
     - name: Display Code Coverage
+      shell: cmd
       run: |
-        echo "Code coverage is $percentage"
-        echo "${{ env.percentage }}%"
+        echo "Coverage is %percentage%%"
         
     - name: Verify Coverage Threshold
-      if: ${{ env.percentage != '' && fromJSON(env.percentage) < 80 }}
+      shell: cmd
       run: |
-          echo "Coverage ${{ env.percentage }}% is below the threshold (80%)."
-          exit 1
+          if %percentage% LSS 80 (
+            echo Coverage %percentage%%% is below the threshold (80%).
+            exit /b 1
+          )

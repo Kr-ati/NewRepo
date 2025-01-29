@@ -50,6 +50,7 @@ jobs:
             )
         
             REM Extract the sequenceCoverage percentage from the XML file
+            set "coveragePercentage=" REM ensure it;s empty before using it
             for /f "tokens=2 delims==<>" %%a in ('findstr "sequenceCoverage" "!coverageFile!"') do (
               set "coveragePercentage=%%a"
             )

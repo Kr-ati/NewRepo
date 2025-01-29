@@ -39,7 +39,7 @@ jobs:
       run: |
         @echo off
         REM Find the coverage file
-        for /r D:\Agents\github_runner\new runner\actions-runner-win-x64-2.321.0\_work\NewRepo\NewRepo\tests\UnitTests\ %%f in (coverage.opencover.xml) do (
+        for /r .\UnitTests\ %%f in (coverage.opencover.xml) do (
           set coverageFile=%%f
           goto :found
         )

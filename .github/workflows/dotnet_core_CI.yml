@@ -37,7 +37,7 @@ jobs:
     - name: Extract Code Coverage Percentage
       id: coverage
       run: |
-            $coverage = (Select-Xml -Path coverage.opencover.xml -XPath "//CoverageSession/Summary" | Select-Object -ExpandProperty Node).GetAttribute("sequenceCoverage")
+            $coverage = (Select-Xml -Path "D:\Agents\github_runner\new runner\actions-runner-win-x64-2.321.0\_work\NewRepo\NewRepo\tests\UnitTests\coverage.opencover.xml" -XPath "//CoverageSession/Summary" | Select-Object -ExpandProperty Node).GetAttribute("sequenceCoverage")
             Write-Host "Code Coverage: $coverage%"
             echo "percentage=$coverage" >> $GITHUB_ENV
     

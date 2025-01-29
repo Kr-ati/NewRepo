@@ -38,26 +38,30 @@ jobs:
       id: coverage
       shell: cmd
       run: |
+        @echo off
+        setlocal enabledelayedexpansion
+
         if not exist "tests\UnitTests\coverage.opencover.xml" (
         echo Coverage file not found!
         exit /b 1
         )
 
-        for /f "tokens=2 delims='\"'" %%A in ('findstr sequenceCoverage tests\UnitTests\coverage.opencover.xml') do (
+        for /f "tokens=2 delims=\"" %%A in ('findstr "sequenceCoverage" tests\UnitTests\coverage.opencover.xml') do (
         set "COVERAGE=%%A"
         )
-        echo Extracted Code Coverage: %COVERAGE%
-        echo percentage=%COVERAGE% >> %GITHUB_ENV%
+
+        echo Extracted Code Coverage: !COVERAGE!
+        echo percentage=!COVERAGE! >> %GITHUB_ENV%
 
     - name: Display Code Coverage
       shell: cmd
       run: |
-        echo "Coverage is %percentage%%"
+        echo "Coverage is ${{ env.percentage }}%""
         
     - name: Verify Coverage Threshold
       shell: cmd
       run: |
-          if %percentage% LSS 80 (
-            echo Coverage %percentage%%% is below the threshold (80%).
-            exit /b 1
-          )
+          if ${{ env.percentage }} LSS 80 (
+          echo Coverage ${{ env.percentage }}% is below the threshold (80%).
+          exit /b 1
+            )

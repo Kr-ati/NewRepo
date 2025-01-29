@@ -23,17 +23,7 @@ jobs:
         dotnet-version: 6.0
       env:
         DOTNET_INSTALL_DIR: D:\dotnet
-
-# test step 
-    - name: Set Coverage Variable
-      shell: powershell
-      run: |
-        # Assuming COVERAGE is the variable you want to save
-        $COVERAGE = "85"  # Replace this with your actual coverage value extraction logic
-
-        # Save the variable to GITHUB_ENV
-        echo "COVERAGE=$COVERAGE" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-    
+        
     - name: Restore dependencies
       run: dotnet restore
         
@@ -45,42 +35,41 @@ jobs:
 
     - name: Extract Code Coverage Percentage
       id: coverage
-      shell: cmd
+      shell: pwsh  # Use PowerShell Core
       run: |
-        @echo off
-        setlocal enabledelayedexpansion
+        if (-not (Test-Path "tests\UnitTests\coverage.opencover.xml")) {
+          Write-Host "Coverage file not found!"
+          exit 1
+        }
 
-        if not exist "tests\UnitTests\coverage.opencover.xml" (
-            echo Coverage file not found!
-            exit /b 1
-        )
+        # Initialize COVERAGE to ensure it's empty before use
+        $COVERAGE = ""
 
-        set "COVERAGE="  :: Initialize COVERAGE to ensure it's empty before use
-        for /f "tokens=2 delims=\" %%A in ('findstr "sequenceCoverage" tests\UnitTests\coverage.opencover.xml') do (
-            set "COVERAGE=%%A"
-        )
+        # Read the coverage value from the XML file
+        $coverageLine = Get-Content "tests\UnitTests\coverage.opencover.xml" | Select-String "sequenceCoverage"
+        if ($coverageLine) {
+          $COVERAGE = $coverageLine -replace '.*\\', ''  # Extract the value after the last backslash
+        }
 
-        :: After the loop, use normal variable expansion to access COVERAGE
-        echo Extracted Code Coverage: !COVERAGE!
-    
-        :: Use delayed expansion to write to GITHUB_ENV
-        echo percentage=!COVERAGE! >> %GITHUB_ENV%
+        # Display extracted coverage value
+        Write-Host "Extracted Code Coverage: $COVERAGE"
 
-        :: Optionally, display the value for debugging purposes
-        echo Final Coverage Value: !COVERAGE!
+        # Save the variable to GITHUB_ENV
+        echo "percentage=$COVERAGE" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-        endlocal
-        
+        # Optionally, display the value for debugging purposes
+        Write-Host "Final Coverage Value: $COVERAGE"
+  
     - name: Display Code Coverage
-      shell: cmd
+      shell: pwsh  # Use PowerShell Core
       run: |
-        echo Coverage is %percentage% %
+        Write-Host "Coverage is $env:percentage%"
 
     - name: Verify Coverage Threshold
-      shell: cmd
+      shell: pwsh  # Use PowerShell Core
       run: |
-          set /a threshold=80
-          if %percentage% LSS %threshold% (
-              echo Coverage %percentage% is below the threshold (%threshold%).
-              exit /b 1
-          )
+        $threshold = 80
+        if ([int]$env:percentage -lt $threshold) {
+            Write-Host "Coverage $env:percentage% is below the threshold ($threshold%)."
+            exit 1
+        }

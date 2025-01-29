@@ -27,9 +27,6 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
-      
-    - name: Install coverlet.msbuild package
-      run: dotnet add package coverlet.console
         
     - name: Build
       run: dotnet build --no-restore

@@ -38,13 +38,16 @@ jobs:
       id: coverage
       shell: cmd
       run: |
-          if not exist "tests\UnitTests\coverage.opencover.xml" (
-            echo Coverage file not found!
-            exit /b 1
-          )
-          for /f "tokens=2 delims='\"'" %%A in ('findstr sequenceCoverage tests\UnitTests\coverage.opencover.xml') do set "COVERAGE=%%A"
-          echo Extracted Code Coverage: %COVERAGE%%
-          echo percentage=%COVERAGE% >> %GITHUB_ENV%
+        if not exist "tests\UnitTests\coverage.opencover.xml" (
+        echo Coverage file not found!
+        exit /b 1
+        )
+
+        for /f "tokens=2 delims='\"'" %%A in ('findstr sequenceCoverage tests\UnitTests\coverage.opencover.xml') do (
+        set "COVERAGE=%%A"
+        )
+        echo Extracted Code Coverage: %COVERAGE%
+        echo percentage=%COVERAGE% >> %GITHUB_ENV%
 
     - name: Display Code Coverage
       shell: cmd

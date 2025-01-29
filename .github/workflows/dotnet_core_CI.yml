@@ -37,6 +37,7 @@ jobs:
       id: coverage
       shell: powershell # Use PowerShell Core
       run: |
+        Get-Content tests\UnitTests\coverage.opencover.xml
         if (-not (Test-Path "tests\UnitTests\coverage.opencover.xml")) {
           Write-Host "Coverage file not found!"
           exit 1

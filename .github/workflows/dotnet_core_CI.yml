@@ -35,7 +35,7 @@ jobs:
 
     - name: Extract Code Coverage Percentage
       id: coverage
-      shell: pwsh  # Use PowerShell Core
+      shell: powershell # Use PowerShell Core
       run: |
         if (-not (Test-Path "tests\UnitTests\coverage.opencover.xml")) {
           Write-Host "Coverage file not found!"

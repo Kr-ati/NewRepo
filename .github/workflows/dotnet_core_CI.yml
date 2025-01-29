@@ -36,17 +36,23 @@ jobs:
 
     - name: Extract Code Coverage Percentage
       id: coverage
+      shell: pwsh
       run: |
-            $coverage = (Select-Xml -Path "D:\Agents\github_runner\new runner\actions-runner-win-x64-2.321.0\_work\NewRepo\NewRepo\tests\UnitTests\coverage.opencover.xml" -XPath "//CoverageSession/Summary" | Select-Object -ExpandProperty Node).GetAttribute("sequenceCoverage")
-            Write-Host "Code Coverage: $coverage%"
-            echo "percentage=$coverage" >> $GITHUB_ENV
-    
+          # Ensure the file exists
+          if (Test-Path "tests/UnitTests/coverage.opencover.xml") {
+            $coverage = (Select-Xml -Path "tests/UnitTests/coverage.opencover.xml" -XPath "//CoverageSession/Summary").Node.GetAttribute("sequenceCoverage")
+            Write-Host "Extracted Code Coverage: $coverage%"
+            echo "percentage=$coverage" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Host "Coverage file not found!"
+            exit 1
+          }
+
     - name: Display Code Coverage
       run: echo "Code Coverage is ${{ env.percentage }}%"
 
-      # Step 7: Check Coverage Threshold
     - name: Verify Coverage Threshold
-      if: ${{ env.percentage < 4 }} # Replace 80 with your desired threshold
+      if: ${{ env.percentage != '' && fromJSON(env.percentage) < 80 }}
       run: |
-        echo "Coverage ${{ env.percentage }}% is below the threshold (80%)."
-        exit 1
+          echo "Coverage ${{ env.percentage }}% is below the threshold (80%)."
+          exit 1

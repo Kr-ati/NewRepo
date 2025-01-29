@@ -26,7 +26,7 @@ jobs:
 
 # test step 
     - name: Set Coverage Variable
-      shell: pwsh
+      shell: powershell
       run: |
         # Assuming COVERAGE is the variable you want to save
         $COVERAGE = "85"  # Replace this with your actual coverage value extraction logic

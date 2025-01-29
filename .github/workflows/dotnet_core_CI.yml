@@ -33,3 +33,20 @@ jobs:
       #updated
     - name: Test
       run: dotnet test tests/UnitTests/UnitTests.csproj --configuration Debug --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
+    - name: Extract Code Coverage Percentage
+      id: coverage
+      run: |
+            $coverage = (Select-Xml -Path coverage.opencover.xml -XPath "//CoverageSession/Summary" | Select-Object -ExpandProperty Node).GetAttribute("sequenceCoverage")
+            Write-Host "Code Coverage: $coverage%"
+            echo "percentage=$coverage" >> $GITHUB_ENV
+    
+    - name: Display Code Coverage
+      run: echo "Code Coverage is ${{ env.percentage }}%"
+
+      # Step 7: Check Coverage Threshold
+    - name: Verify Coverage Threshold
+      if: ${{ env.percentage < 80 }} # Replace 80 with your desired threshold
+      run: |
+        echo "Coverage ${{ env.percentage }}% is below the threshold (80%)."
+        exit 1

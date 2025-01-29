@@ -46,13 +46,22 @@ jobs:
             exit /b 1
         )
 
+        set "COVERAGE="  :: Initialize COVERAGE to ensure it's empty before use
         for /f "tokens=2 delims=\" %%A in ('findstr "sequenceCoverage" tests\UnitTests\coverage.opencover.xml') do (
             set "COVERAGE=%%A"
         )
 
+        :: After the loop, use normal variable expansion to access COVERAGE
         echo Extracted Code Coverage: !COVERAGE!
+    
+        :: Use delayed expansion to write to GITHUB_ENV
         echo percentage=!COVERAGE! >> %GITHUB_ENV%
 
+        :: Optionally, display the value for debugging purposes
+        echo Final Coverage Value: !COVERAGE!
+
+        endlocal
+        
     - name: Display Code Coverage
       shell: cmd
       run: |

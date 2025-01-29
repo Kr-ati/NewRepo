@@ -33,44 +33,37 @@ jobs:
     - name: Test
       run: dotnet test tests/UnitTests/UnitTests.csproj --configuration Debug --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-    - name: Extract Code Coverage Percentage
+    - name: Extract code coverage percentage
       id: coverage
-      shell: powershell # Use PowerShell Core
+      shell: cmd
       run: |
-        Get-Content tests\UnitTests\coverage.opencover.xml
-        if (-not (Test-Path "tests\UnitTests\coverage.opencover.xml")) {
-          Write-Host "Coverage file not found!"
-          exit 1
-        }
+        @echo off
+        REM Find the coverage file
+        for /r .\TestResults %%f in (coverage.opencover.xml) do (
+          set coverageFile=%%f
+          goto :found
+        )
+        :found
+        if not exist "%coverageFile%" (
+          echo Coverage file not found.
+          exit /b 1
+        )
 
-        # Initialize COVERAGE to ensure it's empty before use
-        $COVERAGE = ""
+        REM Extract the coverage percentage from the XML file
+        for /f "tokens=2 delims==<>" %%a in ('findstr Linecoverage "%coverageFile%"') do (
+          set coveragePercentage=%%a
+        )
 
-        # Read the coverage value from the XML file
-        $coverageLine = Get-Content "tests\UnitTests\coverage.opencover.xml" | Select-String "sequenceCoverage"
-        if ($coverageLine) {
-          $COVERAGE = $coverageLine -replace '.*\\', ''  # Extract the value after the last backslash
-        }
+        REM Calculate the percentage (multiply by 100)
+        for /f "tokens=1,2 delims=." %%a in ("%coveragePercentage%") do (
+          set /a coveragePercentage=%%a * 100
+        )
 
-        # Display extracted coverage value
-        Write-Host "Extracted Code Coverage: $COVERAGE"
+        echo Code Coverage Percentage: %coveragePercentage%%
 
-        # Save the variable to GITHUB_ENV
-        echo "percentage=$COVERAGE" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-        # Optionally, display the value for debugging purposes
-        Write-Host "Final Coverage Value: $COVERAGE"
-  
-    - name: Display Code Coverage
-      shell: powershell  # Use PowerShell Core
-      run: |
-        Write-Host "Coverage is $env:percentage%"
-
-    - name: Verify Coverage Threshold
-      shell: powershell  # Use PowerShell Core
-      run: |
-        $threshold = 80
-        if ([int]$env:percentage -lt $threshold) {
-            Write-Host "Coverage $env:percentage% is below the threshold ($threshold%)."
-            exit 1
-        }
+        REM Check if coverage is less than 80%
+        if %coveragePercentage% LSS 80 (
+          echo Code coverage is less than 80%. Failing the job.
+          exit /b 1
+        ) else (
+          echo Code coverage is 80%% or higher. Job passed.

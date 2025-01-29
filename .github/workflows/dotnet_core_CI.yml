@@ -37,35 +37,49 @@ jobs:
       id: coverage
       shell: cmd
       run: |
-        dir
-        dir .\test\UnitTests\*.xml
-        @echo off
-        REM Find the coverage file
-        for /r test\UnitTests\ %%f in (coverage.opencover.xml) do (
-          set coverageFile=%%f
-          goto :found
-        )
-        :found
-        if not exist "%coverageFile%" (
-          echo Coverage file not found.
-          exit /b 1
-        )
-
-        REM Extract the coverage percentage from the XML file
-        for /f "tokens=2 delims==<>" %%a in ('findstr Linecoverage "%coverageFile%"') do (
-          set coveragePercentage=%%a
-        )
-
-        REM Calculate the percentage (multiply by 100)
-        for /f "tokens=1,2 delims=." %%a in ("%coveragePercentage%") do (
-          set /a coveragePercentage=%%a * 100
-        )
-
-        echo Code Coverage Percentage: %coveragePercentage%%
-
-        REM Check if coverage is less than 80%
-        if %coveragePercentage% LSS 80 (
-          echo Code coverage is less than 80%. Failing the job.
-          exit /b 1
-        ) else (
-          echo Code coverage is 80%% or higher. Job passed.
+            @echo off
+            setlocal enabledelayedexpansion
+        
+            REM Define the exact file path
+            set "coverageFile=D:\Agents\github_runner\new runner\actions-runner-win-x64-2.321.0\_work\NewRepo\NewRepo\tests\UnitTests\coverage.opencover.xml"
+        
+            REM Verify that the coverage file exists
+            if not exist "!coverageFile!" (
+              echo Coverage file not found at "!coverageFile!".
+              exit /b 1
+            )
+        
+            REM Extract the sequenceCoverage percentage from the XML file
+            for /f "tokens=2 delims==<>" %%a in ('findstr "sequenceCoverage" "!coverageFile!"') do (
+              set "coveragePercentage=%%a"
+            )
+        
+            REM Debugging: Show extracted coverage before processing
+            echo Extracted Coverage Value: !coveragePercentage!
+        
+            REM Check if coverage percentage was extracted successfully
+            if "!coveragePercentage!"=="" (
+              echo Failed to extract coverage percentage.
+              exit /b 1
+            )
+        
+            REM Convert decimal to integer percentage if necessary
+            for /f "tokens=1,2 delims=." %%a in ("!coveragePercentage!") do (
+              set /a coveragePercentage=%%a * 100
+            )
+        
+            REM Store the extracted percentage in GITHUB_ENV for later steps
+            echo percentage=!coveragePercentage! | powershell -c "Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
+        
+            REM Display the final coverage percentage
+            echo Code Coverage Percentage: !coveragePercentage!%%
+        
+            REM Check if the coverage is less than 80%
+            if !coveragePercentage! LSS 80 (
+              echo Code coverage is below 80%%. Failing the job.
+              exit /b 1
+            ) else (
+              echo Code coverage is 80%% or higher. Job passed.
+            )
+        
+            endlocal

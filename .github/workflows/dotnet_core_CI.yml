@@ -42,12 +42,12 @@ jobs:
         setlocal enabledelayedexpansion
 
         if not exist "tests\UnitTests\coverage.opencover.xml" (
-        echo Coverage file not found!
-        exit /b 1
+            echo Coverage file not found!
+            exit /b 1
         )
 
-        for /f "tokens=2 delims=\"" %%A in ('findstr "sequenceCoverage" tests\UnitTests\coverage.opencover.xml') do (
-        set "COVERAGE=%%A"
+        for /f "tokens=2 delims=\" %%A in ('findstr "sequenceCoverage" tests\UnitTests\coverage.opencover.xml') do (
+            set "COVERAGE=%%A"
         )
 
         echo Extracted Code Coverage: !COVERAGE!
@@ -56,12 +56,13 @@ jobs:
     - name: Display Code Coverage
       shell: cmd
       run: |
-        echo "Coverage is ${{ env.percentage }}%""
-        
+        echo Coverage is %percentage% %
+
     - name: Verify Coverage Threshold
       shell: cmd
       run: |
-          if ${{ env.percentage }} LSS 80 (
-          echo Coverage ${{ env.percentage }}% is below the threshold (80%).
-          exit /b 1
-            )
+          set /a threshold=80
+          if %percentage% LSS %threshold% (
+              echo Coverage %percentage% is below the threshold (%threshold%).
+              exit /b 1
+          )

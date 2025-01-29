@@ -51,10 +51,11 @@ jobs:
         
             REM Extract the sequenceCoverage percentage from the XML file
             set "coveragePercentage=" REM ensure it;s empty before using it
-            for /f "tokens=2 delims==<>" %%a in ('findstr "sequenceCoverage" "!coverageFile!"') do (
+            for /f "tokens=2 delims== " %%a in ('findstr "sequenceCoverage=" "!coverageFile!"') do (
               set "coveragePercentage=%%a"
+              goto :found
             )
-        
+            :found
             REM Debugging: Show extracted coverage before processing
             echo Extracted Coverage Value: !coveragePercentage!
         
@@ -63,7 +64,10 @@ jobs:
               echo Failed to extract coverage percentage.
               exit /b 1
             )
-        
+
+            REM Remove any trailing quote if present (in case it's enclosed like sequenceCoverage="80.0")
+            set "coveragePercentage=!coveragePercentage:"=!"
+
             REM Convert decimal to integer percentage if necessary
             for /f "tokens=1,2 delims=." %%a in ("!coveragePercentage!") do (
               set /a coveragePercentage=%%a * 100

@@ -37,9 +37,11 @@ jobs:
       id: coverage
       shell: cmd
       run: |
+        dir
+        dir .\test\UnitTests\*.xml
         @echo off
         REM Find the coverage file
-        for /r .\UnitTests\ %%f in (coverage.opencover.xml) do (
+        for /r .\test\UnitTests\ %%f in (coverage.opencover.xml) do (
           set coverageFile=%%f
           goto :found
         )
